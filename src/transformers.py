@@ -41,15 +41,16 @@ FEATURE_ABSENCE_COLUMNS = [
 
 class NumericalMissingValueTransformer(BaseEstimator, TransformerMixin):
     """
-    Impute missing numerical features.
-
-    Operations
-    ----------
-    - MasVnrArea   -> 0
-    - GarageYrBlt -> 0
-    - LotFrontage -> Neighborhood-wise median
+        Impute missing numerical features.
+        
+        Notes
+        -----
+        Performs the following operations:
+        
+        - Imputes `MasVnrArea` with 0.
+        - Imputes `GarageYrBlt` with 0.
+        - Imputes `LotFrontage` using the neighborhood-wise median learned from the training data.
     """
-
     def fit(self, X, y=None):
         """
         Learn Neighborhood-wise median LotFrontage
@@ -86,13 +87,15 @@ class NumericalMissingValueTransformer(BaseEstimator, TransformerMixin):
 
 class CategoricalMissingValueTransformer(BaseEstimator, TransformerMixin):
     """
-    Impute missing categorical features.
-
-    Operations
-    ----------
-    - Correct ambiguous basement records identified during EDA.
-    - Replace feature absence with "None".
-    - Impute Electrical using training-set mode.
+        Impute missing categorical features.
+        
+        Notes
+        -----
+        Performs the following operations:
+        
+        - Corrects ambiguous basement records identified during EDA.
+        - Replaces missing values representing feature absence with `"None"`.
+        - Imputes `Electrical` using the mode learned from the training data.
     """
 
     def fit(self, X, y=None):
@@ -145,17 +148,19 @@ class CategoricalMissingValueTransformer(BaseEstimator, TransformerMixin):
 
 class FeatureEngineeringTransformer(BaseEstimator, TransformerMixin):
     """
-    Create new features from existing attributes.
-
-    Features Created
-    ----------------
-    - HouseAge
-    - TotalIndoorArea
-    - TotalBathrooms
-
-    Feature Dropped
-    ---------------
-    - YrSold
+        Create new features from existing attributes.
+        
+        Notes
+        -----
+        Creates the following features:
+        
+        - HouseAge
+        - TotalIndoorArea
+        - TotalBathrooms
+        
+        Drops the following feature after engineering:
+        
+        - YrSold
     """
 
     def fit(self, X, y=None):
