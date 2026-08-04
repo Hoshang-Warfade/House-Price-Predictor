@@ -59,3 +59,98 @@ def evaluate_regression_model(
         )
 
     return metrics
+
+
+
+from sklearn.model_selection import cross_validate
+import pandas as pd
+
+
+def evaluate_cv_model(
+    pipeline,
+    X,
+    y,
+    cv,
+    scoring,
+):
+    """
+    Evaluate a regression model using cross-validation.
+
+    Parameters
+    ----------
+    pipeline : sklearn.pipeline.Pipeline
+        Complete preprocessing and regression pipeline.
+
+    X : pandas.DataFrame
+        Feature matrix.
+
+    y : pandas.Series
+        Target variable.
+
+    cv : Cross-validation splitter
+        Cross-validation strategy.
+
+    scoring : dict
+        Dictionary of evaluation metrics.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Cross-validation performance summary containing the
+        mean and standard deviation of both training and
+        validation metrics.
+    """
+
+    # Perform cross-validation
+    cv_results = cross_validate(
+        estimator=pipeline,
+        X=X,
+        y=y,
+        cv=cv,
+        scoring=scoring,
+        return_train_score=True,
+        n_jobs=-1,
+    )
+
+    # Convert negative error metrics to positive values
+    train_mae = -cv_results["train_mae"]
+    valid_mae = -cv_results["test_mae"]
+
+    train_rmse = -cv_results["train_rmse"]
+    valid_rmse = -cv_results["test_rmse"]
+
+    train_r2 = cv_results["train_r2"]
+    valid_r2 = cv_results["test_r2"]
+
+    # Performance summary
+    evaluation_summary = pd.DataFrame(
+        {
+            "Train Mean": [
+                train_mae.mean(),
+                train_rmse.mean(),
+                train_r2.mean(),
+            ],
+            "Train Std": [
+                train_mae.std(),
+                train_rmse.std(),
+                train_r2.std(),
+            ],
+            "Validation Mean": [
+                valid_mae.mean(),
+                valid_rmse.mean(),
+                valid_r2.mean(),
+            ],
+            "Validation Std": [
+                valid_mae.std(),
+                valid_rmse.std(),
+                valid_r2.std(),
+            ],
+        },
+        index=[
+            "MAE",
+            "RMSE",
+            "R²",
+        ],
+    )
+
+    return evaluation_summary.round(4)
